@@ -9,7 +9,7 @@
 	
 	<%-- login info --%>
 	<div>
-		<span>이다님 안녕하세요</span>
+		<span>${userName}님 안녕하세요</span>
 		<a href="/user/sign-out">로그아웃</a>
 	</div>
 </div>
