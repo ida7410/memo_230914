@@ -5,8 +5,30 @@
  <mapper namespace="com.memo.post.mapper.PostMapper">
  	<select id="selectPostList" resultType="map">
  		SELECT
- 			*
+ 			`id`
+			,`userId`
+			,`subject`
+			,`content`
+			,`imagePath`
+			,`createdAt`
+			,`updatedAt`
  		FROM
  			`post`
+ 	</select>
+ 	
+ 	<select id="selectPostListByUserId" parameterType="int" resultType="map">
+ 		SELECT
+ 			`id`
+			,`userId`
+			,`subject`
+			,`content`
+			,`imagePath`
+			,`createdAt`
+			,`updatedAt`
+ 		FROM
+ 			`post`
+ 		WHERE
+ 			`userId` = #{userId}
+ 		ORDER BY `id` DESC
  	</select>
  </mapper>
