@@ -82,7 +82,7 @@
  			`id` = #{postId}
  	</update>
  	
- 	<delete id="deletePostByPostId" parameterType="int">
+ 	<delete id="deletePostByPostId" parameterType="int" resultType="int">
  		DELETE FROM `post`
  		WHERE
  			`id` = #{postId}
