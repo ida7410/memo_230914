@@ -1,5 +1,6 @@
 package com.memo.post.bo;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,50 @@ public class PostBO {
 	@Autowired
 	private FileManagerService fileManagerService;
 	
+	// 페이징 필드
+	private static final int POST_MAX_SIZE = 3;
+	
 	/**
 	 * 로그인 된 사용자의 메모만 조회
 	 * @param userId
 	 * @return
 	 */
-	public List<Post> getPostListByUserId(int userId) {
-		return postMapper.selectPostListByUserId(userId);
+	public List<Post> getPostListByUserId(int userId, Integer prevId, Integer nextId) {
+		//  10 9 8 | 7 6 5 | 4 3 2 | 1
+		// 4 3 2 페이지에서
+		// - 다음 = 2보다 작은 세 포스트 desc = select * from `post` where `id` < 2 order by `id` desc limit 3 = 1
+		// - 이전 = 4보다 큰 세 포스트 = select * from `post` where `id` > 4 order by `id` limit 3 = 5 6 7 -> list reverse = 7 6 5
+		// - 페이징 정보 x = 최신순 3개 desc
+		
+		Integer standardId = null; // 기준이 되는 postId
+		String direction = null; // 방향
+		if (prevId != null) { // 이전
+			standardId = prevId;
+			direction = "prev";
+			
+			List<Post> postlist = postMapper.selectPostListByUserId(userId, standardId, direction, POST_MAX_SIZE);
+			Collections.reverse(postlist); // 뒤집고 저장
+			return postlist;
+		}
+		else if (nextId != null) { // 다음
+			standardId = nextId;
+			direction = "next";			
+		}
+		
+		// 페이징 정보 없음
+		return postMapper.selectPostListByUserId(userId, standardId, direction, POST_MAX_SIZE);
+	}
+	
+	// 이전 페이지의 마지막인가?
+	public boolean isPrevLastPageByUserId(int userId, int prevId) {
+		int postId = postMapper.selectPostIdByUserIdSort(userId, "DESC");
+		return postId == prevId;
+	}
+	
+	// 다음 페이지의 마지막인가?
+	public boolean isNextLastPageByUserId(int userId, int nextId) {
+		int postId = postMapper.selectPostIdByUserIdSort(userId, "ASC");
+		return postId == nextId;
 	}
 	
 	public Post getPostByPostIdUserId(int postId, int userId) {

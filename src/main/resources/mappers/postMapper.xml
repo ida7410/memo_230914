@@ -16,7 +16,7 @@
  			`post`
  	</select>
  	
- 	<select id="selectPostListByUserId" parameterType="int" resultType="com.memo.post.domain.Post">
+ 	<select id="selectPostListByUserId" parameterType="map" resultType="com.memo.post.domain.Post">
  		SELECT
  			`id`
 			,`userId`
@@ -29,7 +29,17 @@
  			`post`
  		WHERE
  			`userId` = #{userId}
+ 			<if test="direction == 'next'">
+ 			AND `id` &lt; #{standardId}
+ 			ORDER BY `id` DESC
+ 			</if>
+ 			<if test="direction == 'prev'">
+ 			AND `id` &gt; #{standardId}
+ 			</if>
+ 		<if test="direction == null">
  		ORDER BY `id` DESC
+ 		</if>
+ 		LIMIT ${limit}
  	</select>
  	
  	<select id="selectPostByPostIdUserId" parameterType="map" resultType="com.memo.post.domain.Post">
@@ -46,6 +56,17 @@
  		WHERE
  			`id` = #{postId} AND
  			`userId` = #{userId}
+ 	</select>
+ 	
+ 	<select id="selectPostIdByUserIdSort" parameterType="map" resultType="int">
+ 		SELECT
+ 			`id`
+ 		FROM
+ 			`post`
+ 		WHERE
+ 			`userId` = #{userId}
+ 		ORDER BY `id` ${sort}
+ 		LIMIT 1
  	</select>
  	
  	<insert id="insertPost" parameterType="map">
@@ -82,7 +103,7 @@
  			`id` = #{postId}
  	</update>
  	
- 	<delete id="deletePostByPostId" parameterType="int" resultType="int">
+ 	<delete id="deletePostByPostId" parameterType="int">
  		DELETE FROM `post`
  		WHERE
  			`id` = #{postId}
